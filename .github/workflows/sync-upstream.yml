@@ -1,0 +1,35 @@
+
+name: Daily VectorCraft Sync
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/storytold/vectorcraft.git
+          git fetch upstream \
+            "+refs/heads/*:refs/remotes/upstream/*" \
+            "+refs/tags/*:refs/tags/*"
+
+      - name: Push updates
+        run: |
+          git push origin --force \
+            "refs/remotes/upstream/*:refs/heads/*"
+
+          git push origin --force \
+            "refs/tags/*:refs/tags/*"
